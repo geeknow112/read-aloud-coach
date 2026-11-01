@@ -7,29 +7,22 @@
 <style>
   :root {
     color-scheme: dark;
-    --bg: #0f1218;
-    --panel: #171c26;
-    --panel-2: #1f2633;
-    --line: #2b3446;
-    --fg: #eef1f7;
-    --muted: #98a2b6;
-    --accent: #f2b544;
-    --ok: #3ccf91;
-    --ng: #ff6b6b;
+    --bg: #0f1218; --panel: #171c26; --panel-2: #1f2633; --line: #2b3446;
+    --fg: #eef1f7; --muted: #98a2b6; --accent: #f2b544; --ok: #3ccf91; --ng: #ff6b6b;
     --font: "Noto Sans JP", "Hiragino Sans", "Yu Gothic UI", system-ui, sans-serif;
     --mono: ui-monospace, Consolas, monospace;
   }
   * { box-sizing: border-box; }
   body { margin: 0; background: var(--bg); color: var(--fg); font-family: var(--font); font-size: 16px; line-height: 1.7; }
-  .wrap { max-width: 720px; margin: 0 auto; padding: 20px 16px 48px; display: grid; gap: 16px; }
+  .wrap { max-width: 760px; margin: 0 auto; padding: 20px 16px 120px; display: grid; gap: 16px; }
   h1 { font-size: 22px; margin: 0; }
   h2 { font-size: 14px; margin: 0; color: var(--muted); letter-spacing: .06em; }
   .lead { margin: 0; color: var(--muted); font-size: 13px; }
   .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; display: grid; gap: 10px; }
-  textarea { width: 100%; min-height: 180px; background: var(--panel-2); color: var(--fg); border: 1px solid var(--line); border-radius: 8px; padding: 10px; font: 16px/1.7 var(--font); resize: vertical; }
+  textarea { width: 100%; min-height: 220px; background: var(--panel-2); color: var(--fg); border: 1px solid var(--line); border-radius: 8px; padding: 10px; font: 16px/1.7 var(--font); resize: vertical; }
   .row { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; }
   label { font-size: 13px; color: var(--muted); display: inline-flex; gap: 6px; align-items: center; }
-  select, input[type=number] { background: var(--panel-2); color: var(--fg); border: 1px solid var(--line); border-radius: 6px; padding: 4px 8px; font: inherit; }
+  select { background: var(--panel-2); color: var(--fg); border: 1px solid var(--line); border-radius: 6px; padding: 4px 8px; font: inherit; }
   button { font: inherit; cursor: pointer; border-radius: 8px; border: 1px solid var(--line); background: var(--panel-2); color: var(--fg); padding: 10px 16px; }
   button.primary { background: var(--accent); color: #241800; border-color: var(--accent); font-weight: 700; }
   button.big { font-size: 18px; padding: 16px; width: 100%; }
@@ -40,22 +33,29 @@
   .progress > i { display: block; height: 100%; background: var(--accent); width: 0; transition: width .3s; }
   .meta { display: flex; justify-content: space-between; font-size: 13px; color: var(--muted); font-family: var(--mono); font-variant-numeric: tabular-nums; }
 
-  .sentence { font-size: 26px; line-height: 1.8; text-wrap: pretty; padding: 18px 16px; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; }
-  .sentence .w { padding: 0 2px; border-radius: 4px; }
-  .sentence .w.ok { color: var(--ok); }
-  .sentence .w.ng { color: var(--ng); background: rgba(255,107,107,.12); text-decoration: underline wavy var(--ng); text-underline-offset: 6px; }
+  /* 全文。いま読む区切りだけ明るく、読み終えた区切りは緑、これからの区切りは薄く */
+  .full { display: grid; gap: 10px; }
+  .chunk { font-size: 20px; line-height: 1.9; padding: 12px 14px; border-radius: 10px; border: 1px solid var(--line); background: var(--panel); color: var(--muted); }
+  .chunk.now { color: var(--fg); border-color: var(--accent); background: var(--panel-2); font-size: 22px; }
+  .chunk.done { color: var(--ok); border-color: rgba(60,207,145,.4); }
+  .chunk .w { padding: 0 2px; border-radius: 4px; }
+  .chunk .w.ok { color: var(--ok); }
+  .chunk .w.ng { color: var(--ng); background: rgba(255,107,107,.14); text-decoration: underline wavy var(--ng); text-underline-offset: 6px; }
+  .chunk .w.skip { color: var(--muted); text-decoration: line-through; }
 
-  .status { min-height: 52px; padding: 12px 14px; border-radius: 8px; background: var(--panel-2); border: 1px solid var(--line); font-size: 15px; }
+  .status { padding: 12px 14px; border-radius: 8px; background: var(--panel-2); border: 1px solid var(--line); font-size: 15px; }
   .status.pass { border-color: var(--ok); }
   .status.fail { border-color: var(--ng); }
-  .heard { font-family: var(--mono); font-size: 13px; color: var(--muted); overflow-wrap: anywhere; }
+  .heard { font-family: var(--mono); font-size: 13px; color: var(--muted); overflow-wrap: anywhere; margin-top: 4px; }
   .pill { display: inline-block; padding: 1px 10px; border-radius: 999px; font-size: 12px; border: 1px solid var(--line); color: var(--muted); }
   .pill.pass { color: var(--ok); border-color: var(--ok); }
   .num { font-family: var(--mono); font-variant-numeric: tabular-nums; color: var(--accent); }
 
-  .drill-word { font-size: 40px; text-align: center; padding: 18px; background: var(--panel); border: 1px solid var(--ng); border-radius: 10px; }
-  .mic { position: relative; }
-  .mic.live::after { content: "● 録音中"; position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: var(--ng); font-size: 13px; }
+  .dock { position: fixed; left: 0; right: 0; bottom: 0; padding: 10px 16px calc(10px + env(safe-area-inset-bottom, 0px)); background: linear-gradient(transparent, var(--bg) 30%); }
+  .dock .in { max-width: 760px; margin: 0 auto; display: grid; gap: 8px; }
+  .dock .two { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .live { color: var(--ng); }
+
   table { width: 100%; border-collapse: collapse; font-size: 14px; }
   th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--line); }
   th { color: var(--muted); font-weight: 500; }
@@ -68,19 +68,22 @@
 <div class="wrap">
   <header>
     <h1>音読コーチ</h1>
-    <p class="lead">読んだ声を判定し、合格するまで次に進めません。言えなかった語は、お手本を聞いて、1語ずつ言い直してから、文をもう一度読みます。</p>
+    <p class="lead">全文を見ながら、区切りごとに声に出して読みます。読んだ声を判定し、合格するまで次の区切りには進めません。</p>
   </header>
 
   <!-- 設定 -->
   <section id="setup" class="panel">
     <h2>読む文章（英語）</h2>
-    <textarea id="text" placeholder="ここに英日記を貼ってください。1文ずつ読みます。"></textarea>
+    <textarea id="text" placeholder="ここに英日記を貼ってください。何行でも貼れます。"></textarea>
     <div class="row">
+      <label>一度に読む文の数
+        <select id="chunkSize"><option value="2">2文</option><option value="3" selected>3文</option><option value="5">5文</option><option value="0">全部</option></select>
+      </label>
       <label>合格の正確さ
         <select id="threshold"><option value="0.75">75%</option><option value="0.85" selected>85%</option><option value="0.95">95%</option></select>
       </label>
-      <label>1文あたりの合格回数
-        <select id="passes"><option value="1">1回</option><option value="2" selected>2回</option><option value="3">3回</option></select>
+      <label>各区切りの合格回数
+        <select id="passes"><option value="1" selected>1回</option><option value="2">2回</option></select>
       </label>
       <label>お手本の速さ
         <select id="rate"><option value="0.7">ゆっくり</option><option value="0.85" selected>ふつう</option><option value="1">はやい</option></select>
@@ -94,17 +97,9 @@
   <!-- 練習 -->
   <section id="session" class="hidden" style="display:grid;gap:14px">
     <div class="progress"><i id="bar"></i></div>
-    <div class="meta"><span id="pos">1 / 1</span><span id="passInfo"></span></div>
-    <div id="sentence" class="sentence"></div>
-    <div id="drill" class="hidden">
-      <div class="drill-word" id="drillWord"></div>
-    </div>
+    <div class="meta"><span id="pos"></span><span id="passInfo"></span></div>
+    <div id="full" class="full"></div>
     <div id="status" class="status"></div>
-    <div class="row" style="display:grid;gap:10px">
-      <button id="listen" class="hidden">お手本を聞く</button>
-      <button id="mic" class="primary big mic">マイクで読む</button>
-      <button id="stop" class="big hidden">読み終わった</button>
-    </div>
     <button id="quit" style="justify-self:end;font-size:13px;color:var(--muted)">中断する（未完了として記録）</button>
   </section>
 
@@ -112,10 +107,17 @@
   <section id="result" class="hidden panel">
     <h2>今日の結果</h2>
     <div id="summary"></div>
+    <h2>言えなかった語</h2>
     <div id="resultWeak" class="weak"></div>
     <button id="again" class="primary big">もう一度</button>
   </section>
 </div>
+
+<div class="dock hidden" id="dock"><div class="in">
+  <button id="mic" class="primary big">マイクで読む</button>
+  <button id="stop" class="big hidden">読み終わった</button>
+  <div class="two"><button id="listen">お手本を聞く</button><button id="reset" class="hidden">読み直す</button></div>
+</div></div>
 
 <script src="core.js"></script>
 <script>
@@ -129,26 +131,25 @@
     set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} },
   };
 
-  const S = { sentences: [], idx: 0, passes: 0, need: 2, th: 0.85, rate: 0.85,
-              attempts: [], weak: store.get("ra_weak", {}), started: 0, rec: null, busy: false };
+  const FORGIVE_AFTER = 2; // 同じ語を続けて2回外したら、認識されにくい語として扱い、合否から外す
+  const S = { chunks: [], idx: 0, passes: 0, need: 1, th: 0.85, rate: 0.85, attempts: [],
+              weak: store.get("ra_weak", {}), started: 0, rec: null, busy: false,
+              last: null, streak: {}, forgiven: new Set(), stopNow: null };
 
   // ---------- 初期表示 ----------
   $("text").value = store.get("ra_text", "");
-  $("threshold").value = store.get("ra_th", "0.85");
-  $("passes").value = store.get("ra_passes", "2");
-  $("rate").value = store.get("ra_rate", "0.85");
-  if (!SR) $("support").textContent = "このブラウザは音声認識に対応していません。Chrome で開いてください。";
-  else if (location.protocol !== "http:" && location.protocol !== "https:") $("support").textContent = "start.bat から開いてください（file:// ではマイクが使えません）。";
+  for (const [id, key, d] of [["chunkSize", "ra_chunk", "3"], ["threshold", "ra_th", "0.85"], ["passes", "ra_passes", "1"], ["rate", "ra_rate", "0.85"]]) $(id).value = store.get(key, d);
+  if (!SR) $("support").textContent = "このブラウザは音声認識に対応していません。Chrome か Safari で開いてください。";
   renderWeak();
 
   function renderWeak() {
     const list = Object.entries(S.weak).sort((a, b) => b[1] - a[1]).slice(0, 12);
     $("weakBox").classList.toggle("hidden", list.length === 0);
-    $("weakList").replaceChildren(...list.map(([w, n]) => {
-      const e = document.createElement("span"); e.textContent = w;
-      const b = document.createElement("b"); b.textContent = "×" + n; e.append(b); return e;
-    }));
+    $("weakList").replaceChildren(...list.map(([w, n]) => pill(w, n)));
   }
+  function pill(w, n) { const e = document.createElement("span"); e.textContent = w; const b = document.createElement("b"); b.textContent = "×" + n; e.append(b); return e; }
+  function esc(t) { const d = document.createElement("div"); d.textContent = t; return d.innerHTML; }
+  const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 
   // ---------- 音声 ----------
   function speak(text, rate) {
@@ -161,39 +162,52 @@
       if (v) u.voice = v;
       u.onend = resolve; u.onerror = resolve;
       speechSynthesis.speak(u);
-      setTimeout(resolve, 30000);
+      setTimeout(resolve, 120000);
     });
   }
 
-  // 認識を始める。stop() で止めると、集めた候補を返す
-  function listen(opts) {
+  // 読み終わるまで聞き続ける。ブラウザが途中で切っても、つなぎ直す。
+  // 「読み終わった」を押すか、話したあと6秒黙ると終わる。
+  function listenLong() {
     return new Promise((resolve, reject) => {
-      const rec = new SR();
-      rec.lang = "en-US"; rec.interimResults = false; rec.maxAlternatives = 5;
-      rec.continuous = !!opts.continuous;
       const segments = [];
-      let silence = null, gotSpeech = false, t0 = 0, done = false;
-      const finish = (err) => {
-        if (done) return; done = true; clearTimeout(silence); S.rec = null;
-        if (err) reject(err); else resolve({ segments, ms: gotSpeech ? performance.now() - t0 : 0 });
+      let manual = false, spoke = false, t0 = 0, finished = false, silence = null, startWait = null, restarts = 0;
+      const done = (err) => {
+        if (finished) return; finished = true; clearTimeout(silence); clearTimeout(startWait); S.rec = null; S.stopNow = null;
+        if (err && !segments.length) reject(err); else resolve({ segments, ms: spoke ? performance.now() - t0 : 0 });
       };
-      rec.onresult = (e) => {
-        for (let i = e.resultIndex; i < e.results.length; i++) {
-          if (!e.results[i].isFinal) continue;
-          const alts = []; for (let k = 0; k < e.results[i].length; k++) alts.push(e.results[i][k].transcript);
-          segments.push(alts);
-        }
-        if (opts.continuous) { clearTimeout(silence); silence = setTimeout(() => rec.stop(), 2500); }
+      const arm = () => { clearTimeout(silence); silence = setTimeout(() => { manual = true; try { S.rec && S.rec.stop(); } catch {} }, 6000); };
+      const begin = () => {
+        const rec = new SR();
+        rec.lang = "en-US"; rec.interimResults = false; rec.maxAlternatives = 5; rec.continuous = true;
+        rec.onresult = (e) => {
+          for (let i = e.resultIndex; i < e.results.length; i++) {
+            if (!e.results[i].isFinal) continue;
+            const alts = []; for (let k = 0; k < e.results[i].length; k++) alts.push(e.results[i][k].transcript);
+            segments.push(alts);
+          }
+          if (!spoke) { spoke = true; t0 = performance.now(); clearTimeout(startWait); }
+          arm();
+        };
+        rec.onspeechstart = () => { if (!spoke) { spoke = true; t0 = performance.now(); clearTimeout(startWait); } arm(); };
+        rec.onerror = (e) => {
+          if (e.error === "no-speech" || e.error === "aborted") return;
+          done(new Error(e.error));
+        };
+        rec.onend = () => {
+          if (finished) return;
+          if (manual || restarts > 20) return done();
+          restarts++; try { begin(); } catch (e) { done(e); }
+        };
+        S.rec = rec;
+        try { rec.start(); } catch (e) { done(e); }
       };
-      rec.onspeechstart = () => { if (!gotSpeech) { gotSpeech = true; t0 = performance.now(); } };
-      rec.onerror = (e) => { if (e.error === "no-speech" || e.error === "aborted") finish(); else finish(new Error(e.error)); };
-      rec.onend = () => finish();
-      S.rec = rec;
-      try { rec.start(); } catch (e) { finish(e); }
+      S.stopNow = () => { manual = true; try { S.rec && S.rec.stop(); } catch { done(); } };
+      startWait = setTimeout(() => { if (!spoke) { manual = true; try { S.rec && S.rec.stop(); } catch { done(); } } }, 15000);
+      begin();
     });
   }
 
-  // 文全体の候補: 区間ごとの第1候補をつなげたもの + 区間ごとの全候補をつなげた複数案
   function alternativesOf(segments) {
     if (!segments.length) return [""];
     const alts = [];
@@ -201,160 +215,150 @@
     return alts;
   }
 
-  // ---------- 画面の切り替え ----------
-  function show(id) { for (const x of ["setup", "session", "result"]) $(x).classList.toggle("hidden", x !== id); if (id === "session") $("session").style.display = "grid"; }
+  // ---------- 画面 ----------
+  function show(id) { for (const x of ["setup", "session", "result"]) $(x).classList.toggle("hidden", x !== id); if (id === "session") $("session").style.display = "grid"; $("dock").classList.toggle("hidden", id !== "session"); }
   function setStatus(html, cls) { const s = $("status"); s.className = "status" + (cls ? " " + cls : ""); s.innerHTML = html; }
-  function esc(t) { const d = document.createElement("div"); d.textContent = t; return d.innerHTML; }
-
-  function renderSentence(words) {
-    const el = $("sentence");
-    if (!words) { el.textContent = S.sentences[S.idx]; return; }
-    el.replaceChildren(...words.flatMap((w, i) => {
-      const s = document.createElement("span"); s.className = "w " + (w.ok ? "ok" : "ng"); s.textContent = w.raw;
-      return i ? [document.createTextNode(" "), s] : [s];
-    }));
-  }
-
-  function renderProgress() {
-    $("pos").textContent = (S.idx + 1) + " / " + S.sentences.length;
-    $("passInfo").textContent = "合格 " + S.passes + " / " + S.need + "（正確さ " + Math.round(S.th * 100) + "% 以上）";
-    $("bar").style.width = (S.idx / S.sentences.length * 100) + "%";
-  }
-
-  function setControls(mode) {
-    // mode: ready / listening / locked / drill
+  function setButtons(mode) { // ready / listening / locked
     $("mic").classList.toggle("hidden", mode === "listening");
-    $("mic").classList.remove("live");
     $("stop").classList.toggle("hidden", mode !== "listening");
-    $("listen").classList.toggle("hidden", mode === "locked" || mode === "listening");
     $("mic").disabled = mode === "locked";
-    $("listen").disabled = mode === "locked";
+    $("listen").disabled = mode !== "ready";
+    $("reset").classList.toggle("hidden", true);
+  }
+
+  function renderFull() {
+    $("full").replaceChildren(...S.chunks.map((text, i) => {
+      const d = document.createElement("div");
+      d.className = "chunk" + (i < S.idx ? " done" : i === S.idx ? " now" : "");
+      if (i === S.idx && S.last) {
+        S.last.words.forEach((w, k) => {
+          const s = document.createElement("span");
+          const forgiven = !w.ok && S.forgiven.has(C.normalize(w.raw));
+          s.className = "w " + (forgiven ? "skip" : w.ok ? "ok" : "ng"); s.textContent = w.raw;
+          if (k) d.append(" "); d.append(s);
+        });
+      } else d.textContent = text;
+      return d;
+    }));
+    const now = $("full").querySelector(".now"); if (now) now.scrollIntoView({ block: "center", behavior: "smooth" });
+    $("pos").textContent = Math.min(S.idx + 1, S.chunks.length) + " / " + S.chunks.length + " 区切り";
+    $("passInfo").textContent = "合格 " + S.passes + " / " + S.need + "（正確さ " + Math.round(S.th * 100) + "% 以上）";
+    $("bar").style.width = (S.idx / S.chunks.length * 100) + "%";
   }
 
   // ---------- 開始 ----------
   $("start").addEventListener("click", () => {
     const sentences = C.splitSentences($("text").value);
     if (!sentences.length) { alert("読む文章を貼ってください。"); return; }
-    if (!SR) { alert("Chrome で開いてください。"); return; }
-    S.sentences = sentences; S.idx = 0; S.passes = 0; S.attempts = [];
+    if (!SR) { alert("Chrome か Safari で開いてください。"); return; }
+    for (const [id, key] of [["chunkSize", "ra_chunk"], ["threshold", "ra_th"], ["passes", "ra_passes"], ["rate", "ra_rate"]]) store.set(key, $(id).value);
+    store.set("ra_text", $("text").value);
+    S.chunks = C.chunk(sentences, +$("chunkSize").value);
+    S.idx = 0; S.passes = 0; S.attempts = []; S.last = null; S.streak = {}; S.forgiven = new Set();
     S.need = +$("passes").value; S.th = +$("threshold").value; S.rate = +$("rate").value;
-    store.set("ra_text", $("text").value); store.set("ra_th", $("threshold").value);
-    store.set("ra_passes", $("passes").value); store.set("ra_rate", $("rate").value);
-    S.started = Date.now(); S.completed = false;
-    show("session"); beginSentence();
+    S.started = Date.now();
+    show("session"); ready();
   });
 
-  function beginSentence() {
-    renderSentence(); renderProgress(); $("drill").classList.add("hidden"); $("sentence").classList.remove("hidden");
-    setControls("ready");
-    setStatus(S.passes === 0 ? "「マイクで読む」を押して、この文を声に出して読んでください。読み終わったら止まるまで待つか、「読み終わった」を押します。"
-                             : "もう一度読んでください。あと <span class='num'>" + (S.need - S.passes) + "</span> 回合格すると次に進めます。");
+  function ready(msg) {
+    renderFull(); setButtons("ready");
+    setStatus(msg || "光っている区切りを、声に出して読んでください。「マイクで読む」を押して読み始め、読み終わったら「読み終わった」を押します。");
   }
 
   $("listen").addEventListener("click", async () => {
-    setControls("locked"); setStatus("お手本を再生しています…");
-    await speak(S.sentences[S.idx], S.rate);
-    setControls("ready"); setStatus("読んでください。");
+    setButtons("locked"); setStatus("お手本を再生しています…");
+    await speak(S.chunks[S.idx], S.rate);
+    ready();
   });
 
-  // ---------- 文を読む ----------
   $("mic").addEventListener("click", async () => {
     if (S.busy) return; S.busy = true;
-    setControls("listening"); setStatus("聞いています。読み終わったら「読み終わった」を押してください。");
+    setButtons("listening"); setStatus("<span class='live'>● 聞いています。</span>最後まで読んで、「読み終わった」を押してください。");
     let res;
-    try { res = await listen({ continuous: true }); }
-    catch (e) { S.busy = false; setControls("ready"); setStatus(errText(e), "fail"); return; }
+    try { res = await listenLong(); }
+    catch (e) { S.busy = false; setButtons("ready"); setStatus(errText(e), "fail"); return; }
     S.busy = false;
-    if (!res.segments.length) { setControls("ready"); setStatus("声が聞こえませんでした。もう一度読んでください。", "fail"); return; }
-    await judgeSentence(res);
+    if (!res.segments.length) { setButtons("ready"); setStatus("声が聞こえませんでした。もう一度読んでください。", "fail"); return; }
+    await judgeChunk(res);
   });
-  $("stop").addEventListener("click", () => { if (S.rec) S.rec.stop(); });
+  $("stop").addEventListener("click", () => { if (S.stopNow) S.stopNow(); });
 
   function errText(e) {
     const m = String(e && (e.message || e));
-    if (/not-allowed|service-not-allowed/.test(m)) return "マイクが許可されていません。アドレスバーの鍵の表示から、マイクを許可してください。";
+    if (/not-allowed|service-not-allowed/.test(m)) return "マイクが使えません。マイクの許可と、マイクがつながっているかを確認してください。";
     if (/network/.test(m)) return "音声認識に接続できません。ネットワークを確認してください。";
     return "うまく聞き取れませんでした（" + esc(m) + "）。もう一度どうぞ。";
   }
 
-  async function judgeSentence(res) {
-    const sentence = S.sentences[S.idx];
-    const alts = alternativesOf(res.segments);
-    const r = C.judge(sentence, alts);
-    const nWords = r.words.length;
-    const wpm = res.ms > 0 ? Math.round(nWords / (res.ms / 60000)) : 0;
-    renderSentence(r.words);
-    const pct = Math.round(r.accuracy * 100);
-    S.attempts.push({ sentence, accuracy: r.accuracy, missed: r.missed, wpm });
+  // ---------- 判定 ----------
+  async function judgeChunk(res) {
+    const text = S.chunks[S.idx];
+    const r = C.judge(text, alternativesOf(res.segments));
+    // 認識されにくい語は、合否から外す
+    const okWords = r.words.filter((w) => w.ok || S.forgiven.has(C.normalize(w.raw))).length;
+    const acc = r.words.length ? okWords / r.words.length : 0;
+    const wpm = res.ms > 0 ? Math.round(r.words.length / (res.ms / 60000)) : 0;
+    S.last = r;
+    S.attempts.push({ acc, missed: r.missed, wpm });
     const heard = "<div class='heard'>聞こえた内容: " + esc(r.heard || "（なし）") + "</div>";
-    if (r.accuracy >= S.th) {
-      S.passes++;
-      setStatus("<span class='pill pass'>合格</span> 正確さ <span class='num'>" + pct + "%</span> ・ 速さ <span class='num'>" + wpm + "</span> 語/分" + heard, "pass");
-      setControls("locked"); renderProgress();
-      await new Promise((ok) => setTimeout(ok, 1500));
-      if (S.passes >= S.need) { S.idx++; S.passes = 0; if (S.idx >= S.sentences.length) return finish(true); }
-      beginSentence();
-    } else {
-      S.passes = 0; renderProgress();
-      r.missed.forEach((w) => { const k = C.normalize(w); S.weak[k] = (S.weak[k] || 0) + 1; });
-      store.set("ra_weak", S.weak);
-      setStatus("<span class='pill'>不合格</span> 正確さ <span class='num'>" + pct + "%</span>。合格の回数は 0 に戻ります。まず、お手本を聞きます。" + heard, "fail");
-      setControls("locked");
-      await new Promise((ok) => setTimeout(ok, 1200));
-      await speak(sentence, S.rate);
-      await drillWords(r.missed);
-      beginSentence();
-    }
-  }
+    const pct = Math.round(acc * 100);
+    setButtons("locked");
 
-  // ---------- 間違えた語を1語ずつ ----------
-  async function drillWords(missed) {
-    const uniq = [...new Set(missed)];
-    $("sentence").classList.add("hidden"); $("drill").classList.remove("hidden");
-    for (let i = 0; i < uniq.length; i++) {
-      const w = uniq[i];
-      $("drillWord").textContent = w;
-      let ok = false;
-      while (!ok) {
-        setControls("locked"); setStatus("<span class='num'>" + (i + 1) + " / " + uniq.length + "</span> 語目。お手本を聞きます。");
-        await speak(w.replace(/[-]/g, " "), 0.7);
-        setControls("listening"); $("stop").classList.add("hidden");
-        setStatus("この語を声に出してください。");
-        try {
-          const res = await listen({ continuous: false });
-          const alts = res.segments.flat();
-          ok = alts.length > 0 && C.judgeWord(w, alts);
-          if (!ok) { setStatus("<span class='pill'>もう一度</span> 聞こえた内容: " + esc(alts[0] || "（なし）"), "fail"); await new Promise((r) => setTimeout(r, 1300)); }
-        } catch (e) { setStatus(errText(e), "fail"); await new Promise((r) => setTimeout(r, 1500)); }
+    if (acc >= S.th) {
+      S.passes++; S.streak = {};
+      renderFull();
+      setStatus("<span class='pill pass'>合格</span> 正確さ <span class='num'>" + pct + "%</span> ・ 速さ <span class='num'>" + wpm + "</span> 語/分" + heard, "pass");
+      await wait(1600);
+      if (S.passes >= S.need) {
+        S.idx++; S.passes = 0; S.last = null; S.forgiven = new Set();
+        if (S.idx >= S.chunks.length) return finish(true);
       }
-      setStatus("<span class='pill pass'>OK</span> " + esc(w), "pass");
-      await new Promise((r) => setTimeout(r, 700));
+      return ready(S.passes ? "もう一度、同じ区切りを読んでください。あと <span class='num'>" + (S.need - S.passes) + "</span> 回です。" : undefined);
     }
-    $("drill").classList.add("hidden"); $("sentence").classList.remove("hidden");
-    renderSentence();
+
+    // 不合格: 外した語を数え、同じ語を続けて外したら免除する
+    S.passes = 0;
+    const missedKeys = [...new Set(r.missed.map((w) => C.normalize(w)))];
+    const newly = [];
+    for (const k of Object.keys(S.streak)) if (!missedKeys.includes(k)) delete S.streak[k];
+    missedKeys.forEach((k) => {
+      S.streak[k] = (S.streak[k] || 0) + 1;
+      S.weak[k] = (S.weak[k] || 0) + 1;
+      if (S.streak[k] >= FORGIVE_AFTER && !S.forgiven.has(k)) { S.forgiven.add(k); newly.push(k); }
+    });
+    store.set("ra_weak", S.weak);
+    renderFull();
+    const list = missedKeys.map((k) => S.forgiven.has(k) ? "<s>" + esc(k) + "</s>" : "<b style='color:var(--ng)'>" + esc(k) + "</b>").join("、 ");
+    const note = newly.length ? "<div class='heard'>「" + esc(newly.join("、")) + "」は続けて外したので、認識されにくい語として、合否から外しました。苦手な語には記録します。</div>" : "";
+    setStatus("<span class='pill'>もう一度</span> 正確さ <span class='num'>" + pct + "%</span>（合格は " + Math.round(S.th * 100) + "% 以上）。赤い語を意識して、同じ区切りをもう一度読んでください。<div style='margin-top:6px'>外した語: " + list + "</div>" + note + heard, "fail");
+    setButtons("ready");
   }
 
   // ---------- 終了 ----------
-  $("quit").addEventListener("click", () => { if (confirm("中断すると、未完了として記録されます。")) { if (S.rec) { try { S.rec.abort(); } catch {} } speechSynthesis.cancel(); finish(false); } });
+  $("quit").addEventListener("click", () => {
+    if (!confirm("中断すると、未完了として記録されます。")) return;
+    if (S.stopNow) S.stopNow(); speechSynthesis.cancel(); finish(false);
+  });
 
   function finish(completed) {
     const hist = store.get("ra_history", []);
-    const acc = S.attempts.length ? S.attempts.reduce((a, x) => a + x.accuracy, 0) / S.attempts.length : 0;
-    const entry = { ts: Date.now(), sentences: S.sentences.length, done: S.idx, attempts: S.attempts.length, accuracy: acc, completed, sec: Math.round((Date.now() - S.started) / 1000) };
-    hist.push(entry); store.set("ra_history", hist.slice(-200));
+    const acc = S.attempts.length ? S.attempts.reduce((a, x) => a + x.acc, 0) / S.attempts.length : 0;
+    const sec = Math.round((Date.now() - S.started) / 1000);
+    hist.push({ ts: Date.now(), chunks: S.chunks.length, done: S.idx, attempts: S.attempts.length, accuracy: acc, completed, sec });
+    store.set("ra_history", hist.slice(-200));
     $("bar").style.width = "100%";
     const wpms = S.attempts.map((a) => a.wpm).filter(Boolean);
     const avgWpm = wpms.length ? Math.round(wpms.reduce((a, b) => a + b, 0) / wpms.length) : 0;
     $("summary").innerHTML =
-      "<p>" + (completed ? "全部の文で合格しました。" : "<b style='color:var(--ng)'>途中で中断しました（未完了）。</b>") + "</p>" +
-      "<table><tr><th>文の数</th><td><span class='num'>" + S.idx + " / " + S.sentences.length + "</span></td></tr>" +
+      "<p>" + (completed ? "全部の区切りで合格しました。" : "<b style='color:var(--ng)'>途中で中断しました（未完了）。</b>") + "</p>" +
+      "<table><tr><th>読めた区切り</th><td><span class='num'>" + S.idx + " / " + S.chunks.length + "</span></td></tr>" +
       "<tr><th>読んだ回数</th><td><span class='num'>" + S.attempts.length + "</span></td></tr>" +
       "<tr><th>平均の正確さ</th><td><span class='num'>" + Math.round(acc * 100) + "%</span></td></tr>" +
       "<tr><th>平均の速さ</th><td><span class='num'>" + avgWpm + "</span> 語/分</td></tr>" +
-      "<tr><th>かかった時間</th><td><span class='num'>" + Math.floor(entry.sec / 60) + "分" + (entry.sec % 60) + "秒</span></td></tr></table>";
+      "<tr><th>かかった時間</th><td><span class='num'>" + Math.floor(sec / 60) + "分" + (sec % 60) + "秒</span></td></tr></table>";
     const miss = {}; S.attempts.forEach((a) => a.missed.forEach((w) => { const k = C.normalize(w); miss[k] = (miss[k] || 0) + 1; }));
     const list = Object.entries(miss).sort((a, b) => b[1] - a[1]);
-    $("resultWeak").replaceChildren(...list.map(([w, n]) => { const e = document.createElement("span"); e.textContent = w; const b = document.createElement("b"); b.textContent = "×" + n; e.append(b); return e; }));
+    $("resultWeak").replaceChildren(...list.map(([w, n]) => pill(w, n)));
     renderWeak(); show("result");
   }
   $("again").addEventListener("click", () => show("setup"));
