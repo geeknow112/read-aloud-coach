@@ -85,6 +85,9 @@
       <label>各区切りの合格回数
         <select id="passes"><option value="1" selected>1回</option><option value="2">2回</option></select>
       </label>
+      <label>お手本の声
+        <select id="voice"><option value="">自動（いちばん自然な声）</option></select>
+      </label>
       <label>お手本の速さ
         <select id="rate"><option value="0.7">ゆっくり</option><option value="0.85" selected>ふつう</option><option value="1">はやい</option></select>
       </label>
@@ -152,14 +155,49 @@
   const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 
   // ---------- 音声 ----------
+  // 端末に入っている英語の声のうち、自然な声ほど高い点を付けて、いちばん上を使う
+  function voiceScore(v) {
+    let s = 0;
+    if (/en[-_]US/i.test(v.lang)) s += 10; else if (/^en/i.test(v.lang)) s += 4;
+    if (/natural|neural|premium|enhanced/i.test(v.name)) s += 60;
+    if (/online/i.test(v.name)) s += 25;
+    if (/\b(aria|jenny|guy|ava|andrew|emma|brian|michelle|christopher|ana)\b/i.test(v.name)) s += 25;
+    if (/google us english/i.test(v.name)) s += 30;
+    if (/\b(samantha|zoe|nicky|allison|evan|nathan|siri)\b/i.test(v.name)) s += 20;
+    if (/compact|espeak|zira|david|mark/i.test(v.name)) s -= 15;
+    return s;
+  }
+  function englishVoices() {
+    if (!("speechSynthesis" in window)) return [];
+    return speechSynthesis.getVoices().filter((v) => /^en/i.test(v.lang)).sort((a, b) => voiceScore(b) - voiceScore(a));
+  }
+  function pickVoice() {
+    const list = englishVoices(); const name = store.get("ra_voice", "");
+    return list.find((v) => v.name === name) || list[0] || null;
+  }
+  function fillVoices() {
+    const sel = $("voice"); const list = englishVoices();
+    if (!list.length) return;
+    const saved = store.get("ra_voice", "");
+    sel.replaceChildren(...[["", "自動（いちばん自然な声）"], ...list.map((v) => [v.name, v.name + "（" + v.lang + "）"])].map(([val, label]) => {
+      const o = document.createElement("option"); o.value = val; o.textContent = label; return o;
+    }));
+    sel.value = list.some((v) => v.name === saved) ? saved : "";
+  }
+  if ("speechSynthesis" in window) { fillVoices(); speechSynthesis.addEventListener("voiceschanged", fillVoices); }
+  $("voice").addEventListener("change", () => {
+    store.set("ra_voice", $("voice").value);
+    speak("Hello. This is how I will read your text.", +$("rate").value);
+  });
+
   function speak(text, rate) {
     return new Promise((resolve) => {
       if (!("speechSynthesis" in window)) return resolve();
       speechSynthesis.cancel();
       const u = new SpeechSynthesisUtterance(text);
       u.lang = "en-US"; u.rate = rate;
-      const v = speechSynthesis.getVoices().find((x) => /en[-_]US/i.test(x.lang));
-      if (v) u.voice = v;
+      const v = pickVoice();
+      if (v) { u.voice = v; u.lang = v.lang; }
       u.onend = resolve; u.onerror = resolve;
       speechSynthesis.speak(u);
       setTimeout(resolve, 120000);
